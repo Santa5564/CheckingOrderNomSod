@@ -210,14 +210,26 @@
 function searchOrder() {
   const phone = document.getElementById("phone").value;
 
+  document.getElementById("result").innerHTML = `
+    <div class="text-center my-4">
+      <div class="spinner-border text-warning"></div>
+      <div class="mt-2">กำลังค้นหา...</div>
+    </div>
+  `;
+
   window.handleResponse = function(data) {
     let html = "";
 
-    if (data.length === 0) {
-      html = `<div class="alert alert-warning text-center rounded-4 shadow-sm">ไม่พบข้อมูลคำสั่งซื้อ</div>`;
+    if (!data || data.length === 0) {
+      html = `
+        <div class="alert alert-warning text-center rounded-4 shadow-sm">
+          ไม่พบข้อมูลคำสั่งซื้อ
+        </div>
+      `;
     } else {
       data.forEach(order => {
         let itemsHtml = "";
+
         order.items.forEach(item => {
           itemsHtml += `
             <li class="list-group-item d-flex justify-content-between">
@@ -227,15 +239,24 @@ function searchOrder() {
         });
 
         html += `
-          <div class="card order-card mb-4">
+          <div class="card order-card">
             <div class="card-body p-4">
               <h5 class="fw-bold order-title mb-3">เลขคำสั่งซื้อ: ${order.orderNo}</h5>
               <p><strong>${order.nameHeader}:</strong> ${order.nameValue}</p>
               <p><strong>${order.totalHeader}:</strong> ${order.totalValue} บาท</p>
               <p><strong>ที่อยู่:</strong><br>${order.address}</p>
               <p><strong>เลขพัสดุ:</strong><br>${order.trackingNo}</p>
+
               <h6 class="fw-bold mt-4 mb-3">รายการสินค้า</h6>
-              <ul class="list-group custom-list mb-4">${itemsHtml}</ul>
+              <ul class="list-group mb-4">
+                ${itemsHtml}
+              </ul>
+
+              ${order.slip ? `
+                <a href="${order.slip}" target="_blank" class="btn btn-outline-secondary">
+                  ดูหลักฐานการโอน
+                </a>
+              ` : ""}
             </div>
           </div>`;
       });
@@ -244,11 +265,17 @@ function searchOrder() {
     document.getElementById("result").innerHTML = html;
   };
 
+  const oldScript = document.getElementById("jsonpScript");
+  if (oldScript) oldScript.remove();
+
   const script = document.createElement("script");
-  script.src = "https://script.google.com/macros/s/AKfycbyzEL4uh6yy-wTUV2lRY-w0IFnR0MMbxU6N75qTQ-LTyzEvJGGIUv0YWvdouAnx7I86cQ/exec?phone=" + encodeURIComponent(phone) + "&callback=handleResponse";
+  script.id = "jsonpScript";
+  script.src = "https://script.google.com/macros/s/AKfycbyf-KMVbQKL3Ru7l9zczm7cuqKfpFYQQB9zzYCToRkBFvZ4VuCS0ChF9LmLkT8ZP09dlg/exec?phone=" + encodeURIComponent(phone) + "&callback=handleResponse";
+
   document.body.appendChild(script);
 }
 </script>
+
 
 </body>
 </html>
