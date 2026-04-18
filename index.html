@@ -220,50 +220,63 @@ function searchOrder() {
     </div>
   `;
 
-  google.script.run.withSuccessHandler(function(data) {
-    let html = "";
+  fetch("https://script.google.com/macros/s/AKfycbzNj0t413h7pxEB4pjBVfmAdl98FGPWflIX_u6KN_srJ5OBIfE0NaWmqOlQXRrbBOlj/exec?phone=" + encodeURIComponent(phone))
+    .then(response => response.json())
+    .then(data => {
+      let html = "";
 
-    if (data.length === 0) {
-      html = `
-        <div class="alert alert-warning text-center rounded-4 shadow-sm">
-          ไม่พบข้อมูลคำสั่งซื้อ
+      if (data.length === 0) {
+        html = `
+          <div class="alert alert-warning text-center rounded-4 shadow-sm">
+            ไม่พบข้อมูลคำสั่งซื้อ
+          </div>
+        `;
+      } else {
+        data.forEach(order => {
+          let itemsHtml = "";
+
+          order.items.forEach(item => {
+            itemsHtml += `
+              <li class="list-group-item d-flex justify-content-between">
+                <span>${item.name}</span>
+                <span class="fw-bold">${item.qty}</span>
+              </li>`;
+          });
+
+          html += `
+            <div class="card order-card mb-4">
+              <div class="card-body p-4">
+                <h5 class="fw-bold order-title mb-3">เลขคำสั่งซื้อ: ${order.orderNo}</h5>
+                <p><strong>${order.nameHeader}:</strong> ${order.nameValue}</p>
+                <p><strong>${order.totalHeader}:</strong> ${order.totalValue} บาท</p>
+                <p><strong>ที่อยู่:</strong><br>${order.address}</p>
+                <p><strong>เลขพัสดุ:</strong><br>${order.trackingNo}</p>
+
+                <h6 class="fw-bold mt-4 mb-3">รายการสินค้า</h6>
+                <ul class="list-group custom-list mb-4">
+                  ${itemsHtml}
+                </ul>
+
+                ${order.slip ? `
+                  <a href="${order.slip}" target="_blank" class="btn slip-btn">
+                    ดูหลักฐานการโอน
+                  </a>
+                ` : ""}
+              </div>
+            </div>`;
+        });
+      }
+
+      document.getElementById("result").innerHTML = html;
+    })
+    .catch(error => {
+      document.getElementById("result").innerHTML = `
+        <div class="alert alert-danger text-center rounded-4 shadow-sm">
+          เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล
         </div>
       `;
-    } else {
-      data.forEach(order => {
-        let itemsHtml = "";
-        order.items.forEach(item => {
-          itemsHtml += `
-            <li class="list-group-item d-flex justify-content-between">
-              <span>${item.name}</span>
-              <span class="fw-bold">${item.qty}</span>
-            </li>`;
-        });
-
-        html += `
-          <div class="card order-card mb-4">
-            <div class="card-body p-4">
-              <h5 class="fw-bold order-title mb-3">เลขคำสั่งซื้อ: ${order.orderNo}</h5>
-              <p><strong>${order.nameHeader}:</strong> ${order.nameValue}</p>
-              <p><strong>${order.totalHeader}:</strong> ${order.totalValue} บาท</p>
-              <p><strong>ที่อยู่:</strong><br>${order.address}</p>
-              <p><strong>เลขพัสดุ:</strong><br>${order.trackingNo}</p>
-
-              <h6 class="fw-bold mt-4 mb-3">รายการสินค้า</h6>
-              <ul class="list-group custom-list mb-4">${itemsHtml}</ul>
-
-              ${order.slip ? `
-                <a href="${order.slip}" target="_blank" class="btn slip-btn">
-                  ดูหลักฐานการโอน
-                </a>
-              ` : ""}
-            </div>
-          </div>`;
-      });
-    }
-
-    document.getElementById("result").innerHTML = html;
-  }).searchByPhone(phone);
+      console.error(error);
+    });
 }
 </script>
 
