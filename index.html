@@ -132,13 +132,14 @@
       will-change: transform;
     }
 
-    .top-left { top: 20px; left: 8%; animation-delay: 0s; }
-    .middle-left { top: 50%; left: 8%; transform: translateY(-50%); animation-delay: 1s; }
-    .bottom-left { bottom: 20px; left: 8%; animation-delay: 2s; }
+    .top-left { top: 30px; left: 6%; }
+    .top-right { top: 20px; right: 8%; transform: scaleX(-1); }
 
-    .top-right { top: 20px; right: 8%; transform: scaleX(-1); animation-delay: 0.5s; }
-    .middle-right { top: 50%; right: 8%; transform: translateY(-50%) scaleX(-1); animation-delay: 1.5s; }
-    .bottom-right { bottom: 20px; right: 8%; transform: scaleX(-1); animation-delay: 2.5s; }
+    .middle-left { top: 52%; left: 7%; transform: translateY(-50%); }
+    .middle-right { top: 48%; right: 9%; transform: translateY(-50%) scaleX(-1); }
+
+    .bottom-left { bottom: 25px; left: 5%; }
+    .bottom-right { bottom: 20px; right: 10%; transform: scaleX(-1); }
 
     @media (max-width: 992px) {
       .character-img { width: 140px; opacity: 0.7; }
