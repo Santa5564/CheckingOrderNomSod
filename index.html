@@ -128,9 +128,7 @@
       height: auto;
       z-index: 1;
       pointer-events: none;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.14));
-
-      animation: floatMove 6s ease-in-out infinite;
+      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.18));
       will-change: transform;
     }
 
@@ -257,6 +255,51 @@ function searchOrder() {
 
   document.body.appendChild(script);
 }
+
+const characters = document.querySelectorAll(".character-img");
+
+characters.forEach((el, index) => {
+  let x = 0;
+  let y = 0;
+  let angle = 0;
+
+  function animate() {
+    // สุ่ม drift ตลอดเวลา
+    x += (Math.random() - 0.5) * 2.5;
+    y += (Math.random() - 0.5) * 2.5;
+
+    // จำกัดขอบเขต
+    x = Math.max(-40, Math.min(40, x));
+    y = Math.max(-40, Math.min(40, y));
+
+    // เอียงนิด ๆ
+    angle += (Math.random() - 0.5) * 0.8;
+
+    // breathing effect
+    const scale = 1 + Math.sin(Date.now() / 800 + index) * 0.05;
+
+    el.style.transform = `
+      translate(${x}px, ${y}px)
+      rotate(${angle}deg)
+      scale(${scale})
+      ${el.classList.contains("top-right") || el.classList.contains("middle-right") || el.classList.contains("bottom-right") ? "scaleX(-1)" : ""}
+    `;
+
+    requestAnimationFrame(animate);
+  }
+
+  document.addEventListener("mousemove", (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 30;
+  const y = (e.clientY / window.innerHeight - 0.5) * 30;
+
+  document.querySelectorAll(".character-img").forEach((el, i) => {
+    el.style.transform += ` translate(${x * (i+1)/10}px, ${y * (i+1)/10}px)`;
+  });
+});
+
+  animate();
+});
+
 </script>
 
 </body>
