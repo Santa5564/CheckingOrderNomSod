@@ -186,6 +186,17 @@
 
 
 <script>
+  
+function convertDriveLink(url) {
+  if (!url) return "";
+
+  const match = url.match(/id=([^&]+)/);
+  if (match) {
+    return "https://drive.google.com/file/d/" + match[1] + "/view";
+  }
+
+  return url;
+}
 
 const characters = document.querySelectorAll(".character-img");
 
@@ -272,10 +283,19 @@ function searchOrder() {
     </div>
   `;
 
+  let timeout = setTimeout(() => {
+  resultDiv.innerHTML = `
+      <div class="alert alert-warning text-center rounded-4 shadow-sm">
+        ใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง
+      </div>
+    `;
+  }, 7000);
+
   // 🔥 สร้าง callback name แบบ unique ทุกครั้ง (สำคัญมาก)
   const callbackName = "handleResponse_" + Date.now();
 
   window[callbackName] = function(data) {
+    clearTimeout(timeout);
     delete window[callbackName]; // ล้างทิ้ง (กัน memory leak)
 
     let html = "";
@@ -315,8 +335,10 @@ function searchOrder() {
                 ${itemsHtml}
               </ul>
 
+              const slipUrl = convertDriveLink(order.slip);
+
               ${order.slip ? `
-                <a href="${order.slip}" target="_blank" class="btn slip-btn">
+                <a href="${slipUrl}" target="_blank" rel="noopener noreferrer" class="btn slip-btn">
                   ดูหลักฐานการโอน
                 </a>
               ` : ""}
@@ -334,7 +356,17 @@ function searchOrder() {
 
   // 🔥 สร้าง script ใหม่ (กัน cache + callback ชื่อใหม่)
   const script = document.createElement("script");
+  
   script.id = "jsonpScript";
+  script.onerror = function() {
+    clearTimeout(timeout);
+    resultDiv.innerHTML = `
+        <div class="alert alert-danger text-center rounded-4 shadow-sm">
+          เกิดข้อผิดพลาดในการโหลดข้อมูล (บราวเซอร์อาจปิดกั้นคำขอของคุณ)
+        </div>
+      `;
+  };
+  
   script.src =
     "https://script.google.com/macros/s/AKfycbwi8LRQV-VPjfutKn-MyM3Hk7225rCb-maCFXQzyhChijL6YOYkpq4VpuqSTltchsqv/exec"
     + "?phone=" + encodeURIComponent(phone)
