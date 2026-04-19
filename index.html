@@ -261,17 +261,24 @@ characters.forEach((el, index) => {
   animate();
 });
 
+<script>
 function searchOrder() {
   const phone = document.getElementById("phone").value;
+  const resultDiv = document.getElementById("result");
 
-  document.getElementById("result").innerHTML = `
+  resultDiv.innerHTML = `
     <div class="text-center my-4">
       <div class="spinner-border text-warning"></div>
       <div class="mt-2 fw-semibold">กำลังค้นหาคำสั่งซื้อ...</div>
     </div>
   `;
 
-  window.handleResponse = function(data) {
+  // 🔥 สร้าง callback name แบบ unique ทุกครั้ง (สำคัญมาก)
+  const callbackName = "handleResponse_" + Date.now();
+
+  window[callbackName] = function(data) {
+    delete window[callbackName]; // ล้างทิ้ง (กัน memory leak)
+
     let html = "";
 
     if (!data || data.length === 0) {
@@ -319,15 +326,21 @@ function searchOrder() {
       });
     }
 
-    document.getElementById("result").innerHTML = html;
+    resultDiv.innerHTML = html;
   };
 
+  // 🔥 ลบ script เก่า
   const oldScript = document.getElementById("jsonpScript");
   if (oldScript) oldScript.remove();
 
+  // 🔥 สร้าง script ใหม่ (กัน cache + callback ชื่อใหม่)
   const script = document.createElement("script");
   script.id = "jsonpScript";
-  script.src = "https://script.google.com/macros/s/AKfycbwi8LRQV-VPjfutKn-MyM3Hk7225rCb-maCFXQzyhChijL6YOYkpq4VpuqSTltchsqv/exec?phone=" + encodeURIComponent(phone) + "&callback=handleResponse&t=" + new Date().getTime();
+  script.src =
+    "https://script.google.com/macros/s/AKfycbwi8LRQV-VPjfutKn-MyM3Hk7225rCb-maCFXQzyhChijL6YOYkpq4VpuqSTltchsqv/exec"
+    + "?phone=" + encodeURIComponent(phone)
+    + "&callback=" + callbackName
+    + "&t=" + Date.now(); // กัน cache
 
   document.body.appendChild(script);
 }
