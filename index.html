@@ -309,6 +309,7 @@ function searchOrder() {
     } else {
       data.forEach((order, index) => {
         let itemsHtml = "";
+        const slipUrl = convertDriveLink(order.slip);
 
         order.items.forEach(item => {
           itemsHtml += `
@@ -334,8 +335,6 @@ function searchOrder() {
               <ul class="list-group custom-list mb-4">
                 ${itemsHtml}
               </ul>
-
-              const slipUrl = convertDriveLink(order.slip);
 
               ${order.slip ? `
                 <a href="${slipUrl}" target="_blank" rel="noopener noreferrer" class="btn slip-btn">
@@ -366,7 +365,7 @@ function searchOrder() {
         </div>
       `;
   };
-  
+
   script.src =
     "https://script.google.com/macros/s/AKfycbwi8LRQV-VPjfutKn-MyM3Hk7225rCb-maCFXQzyhChijL6YOYkpq4VpuqSTltchsqv/exec"
     + "?phone=" + encodeURIComponent(phone)
